@@ -48,7 +48,7 @@ jobs:
       run: Set-LocalUser -Name "runneradmin" -Password (ConvertTo-SecureString -AsPlainText "P@ssw0rd!" -Force)
     - name: Start Ngrok Tunnel
       run: .\ngrok\ngrok.exe tcp 3389
-
+```
 ## 4. Menjalankan Workflow
 - Setelah konfigurasi di atas selesai, commit dan push perubahan ke repository Anda.
 - Buka tab Actions pada repository Anda, lalu jalankan workflow dengan memilih Run workflow (jika menggunakan workflow_dispatch).
