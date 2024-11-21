@@ -30,23 +30,37 @@ jobs:
     runs-on: windows-latest
 
     steps:
-    - name: Download Ngrok
+    # Step untuk mengunduh dan menginstal ngrok seperti yang sudah ada
+    - name: Download
       run: Invoke-WebRequest https://bin.equinox.io/c/bNyj1mQVY4c/ngrok-v3-stable-windows-amd64.zip -OutFile ngrok.zip
-    - name: Extract Ngrok
+    - name: Extract
       run: Expand-Archive ngrok.zip
-    - name: Authenticate Ngrok
+    - name: Auth
       run: .\ngrok\ngrok.exe authtoken $Env:NGROK_AUTH_TOKEN
       env:
         NGROK_AUTH_TOKEN: ${{ secrets.NGROK_AUTH_TOKEN }}
-    - name: Enable Remote Desktop
+    - name: Enable TS
       run: Set-ItemProperty -Path 'HKLM:\System\CurrentControlSet\Control\Terminal Server' -name "fDenyTSConnections" -Value 0
-    - name: Enable Firewall for RDP
-      run: Enable-NetFirewallRule -DisplayGroup "Remote Desktop"
-    - name: Set RDP Authentication
-      run: Set-ItemProperty -Path 'HKLM:\System\CurrentControlSet\Control\Terminal Server\WinStations\RDP-Tcp' -name "UserAuthentication" -Value 1
-    - name: Set Password for Admin
-      run: Set-LocalUser -Name "runneradmin" -Password (ConvertTo-SecureString -AsPlainText "P@ssw0rd!" -Force)
-    - name: Start Ngrok Tunnel
+    - run: Enable-NetFirewallRule -DisplayGroup "Remote Desktop"
+    - run: Set-ItemProperty -Path 'HKLM:\System\CurrentControlSet\Control\Terminal Server\WinStations\RDP-Tcp' -name "UserAuthentication" -Value 1
+    - run: Set-LocalUser -Name "runneradmin" -Password (ConvertTo-SecureString -AsPlainText "P@ssw0rd!" -Force)
+
+    - name: Install Python 3.10
+      shell: cmd
+      run: |
+        choco install python --version=3.10 -y
+        refreshenv
+    - name: Install Python Modules
+      shell: cmd
+      run: |
+        python -m pip install selenium webdriver-manager pyautogui
+
+    # Step untuk menginstal VSCode (opsional jika hanya perlu Python dan pip)
+    - name: Install Visual Studio Code
+      run: |
+        choco install vscode -y
+
+    - name: Create Tunnel
       run: .\ngrok\ngrok.exe tcp 3389
 ```
 ## 4. Menjalankan Workflow
