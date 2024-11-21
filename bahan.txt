@@ -30,7 +30,7 @@ jobs:
     - name: Install Python Modules
       shell: cmd
       run: |
-        python -m pip install selenium webdriver-manager pyautogui
+        python -m pip install selenium webdriver-manager pyautogui keyboard
 
     # Step untuk menginstal VSCode (opsional jika hanya perlu Python dan pip)
     - name: Install Visual Studio Code
