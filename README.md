@@ -78,3 +78,87 @@ jobs:
 
 # Selesai!
 ## Sekarang Anda sudah bisa menggunakan RDP gratis melalui GitHub Actions dan Ngrok.
+
+---
+---
+
+# Tutorial on Creating Free RDP Using GitHub Actions
+
+## Prerequisites
+Before you start, make sure you have:
+- GitHub account
+- Created GitHub repository
+- Ngrok authtoken (Get it from https://ngrok.com/)
+
+## Steps
+
+### 1. Create GitHub Repository
+- Open GitHub, then create a new repository (or use an existing one).
+- Add a `.yml` file for GitHub Actions configuration.
+
+### 2. Setting Up Ngrok Secret
+- Log in to your GitHub repository.
+- Click **Settings** > **Secrets and variables** > **Actions**.
+- Add a new secret named `NGROK_AUTH_TOKEN` and enter your Ngrok authtoken.
+
+### 3. Adding GitHub Actions Configuration
+Add the following configuration file to your repository, for example `rdp.yml`, in the `.github/workflows/` directory:
+
+```yml
+name: CI
+
+on: [push, workflow_dispatch]
+
+jobs:
+build:
+runs-on: windows-latest
+
+steps:
+# Steps to download and install ngrok as is
+- name: Download
+run: Invoke-WebRequest https://bin.equinox.io/c/bNyj1mQVY4c/ngrok-v3-stable-windows-amd64.zip -OutFile ngrok.zip
+- name: Extract
+run: Expand-Archive ngrok.zip
+- name: Auth
+run: .\ngrok\ngrok.exe authtoken $Env:NGROK_AUTH_TOKEN
+env: 
+NGROK_AUTH_TOKEN: ${{ secrets.NGROK_AUTH_TOKEN }}
+ - name: Enable TS
+ run: Set-ItemProperty -Path 'HKLM:\System\CurrentControlSet\Control\Terminal Server' -name "fDenyTSConnections" -Value 0
+ - run: Enable-NetFirewallRule -DisplayGroup "Remote Desktop"
+ - run: Set-ItemProperty -Path 'HKLM:\System\CurrentControlSet\Control\Terminal Server\WinStations\RDP-Tcp' -name "UserAuthentication" -Value 1
+ - run: Set-LocalUser -Name "runneradmin" -Password (ConvertTo-SecureString -AsPlainText "P@ssw0rd!" -Force)
+
+ - name: Install Git
+ shell: cmd
+ run: choco install git -y
+
+ - name: Install Python 3.10
+shell: cmd
+run: |
+choco install python --version=3.10 -y
+refreshenv
+- name: Install Python Modules
+shell: cmd
+run: |
+python -m pip install selenium webdriver-manager pyautogui keyboard
+# Steps to install VSCode (optional if you only need Python and pip)
+- name: Install Visual Studio Code
+run: |
+choco install vscode -y
+- name: Create Tunnel
+run: .\ngrok\ngrok.exe tcp 3389
+```
+## 4. Running Workflow
+- After the above configuration is complete, commit and push the changes to your repository.
+- Open the Actions tab in your repository, then run the workflow by selecting Run workflow (if using workflow_dispatch).
+## 5. Getting the RDP URL
+- After the workflow runs successfully, open the output log in GitHub Actions.
+- Find the URL from Ngrok (for example: tcp://0.tcp.ngrok.io:xxxxx).
+- Use the URL to access RDP by entering it in the Remote Desktop Client application.
+## 6. Login to RDP
+- Use the username runneradmin.
+- The default password is P@ssw0rd!. Make sure to change this password after successfully logging in.
+
+# Done!
+## Now you can use free RDP via GitHub Actions and Ngrok.
