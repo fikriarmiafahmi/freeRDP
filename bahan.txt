@@ -22,6 +22,10 @@ jobs:
     - run: Set-ItemProperty -Path 'HKLM:\System\CurrentControlSet\Control\Terminal Server\WinStations\RDP-Tcp' -name "UserAuthentication" -Value 1
     - run: Set-LocalUser -Name "runneradmin" -Password (ConvertTo-SecureString -AsPlainText "P@ssw0rd!" -Force)
 
+    - name: Install Git
+      shell: cmd
+      run: choco install git -y
+      
     - name: Install Python 3.10
       shell: cmd
       run: |
@@ -31,11 +35,9 @@ jobs:
       shell: cmd
       run: |
         python -m pip install selenium webdriver-manager pyautogui keyboard
-
     # Step untuk menginstal VSCode (opsional jika hanya perlu Python dan pip)
     - name: Install Visual Studio Code
       run: |
         choco install vscode -y
-
     - name: Create Tunnel
       run: .\ngrok\ngrok.exe tcp 3389
